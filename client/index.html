@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+	<script type="text/babel">  
+        "use strict";
+
+        let socket; 
+        let totalScore;
+        let myScore = 0;
+        let myScoreElem;
+        
+        const generateScore = () => {
+          /**add 10 to our personal score **/
+          myScore += 10;
+
+          myScoreElem.innerText = myScore;
+          /**request to update the total world score on the
+             server by 10 (again hard coded for example).**/
+          socket.emit("updateScore", 10);
+        }
+        
+        /**function to display updated score from server**/
+        const update = (data) => {
+          totalScore.innerText = data;
+        }
+        
+        const init = () => {
+          totalScore = document.querySelector("#totalScore");
+          myScoreElem = document.querySelector("#myScore");
+          totalScore.innerText = "0"; //default text for page
+
+          socket = io.connect();
+
+          socket.on('connect', () => {
+              /**normally this would be invoked by a user
+                action, not automated **/
+              setInterval(generateScore, 1200);
+          });      
+
+          socket.on('updated', update);
+        }
+
+      window.onload = init;
+    </script>
+</head>
+<body>
+    <h2>Total Score: <span id="totalScore"></span></h2>
+    <h2>My Generated Score: <span id="myScore"></span></h2>
+</body>
+</html>
