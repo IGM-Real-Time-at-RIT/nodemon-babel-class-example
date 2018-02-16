@@ -8,18 +8,19 @@ const fs = require('fs');
 let score = 0;
 
 const handler = (req, res) => {
-  /** read our file ASYNCHRONOUSLY from the file system.
-     This is much lower performance, but allows us to
-     reload the page changes during development. **/
-  fs.readFile(`${__dirname}/../client/index.html`, (err, data) => {
-    // if err, throw it for now
-    if (err) {
-      throw err;
-    }
-
-    res.writeHead(200);
-    res.end(data);
-  });
+  //check if asking for bundle and send that back
+  //otherwise send back html
+  if(req.url === '/bundle.js') { 
+    fs.readFile(`${__dirname}/../hosted/bundle.js`, (err, data) => {
+      res.writeHead(200, { 'Content-Type': 'application/javascript'});
+      res.end(data);
+    });
+  } else {
+    fs.readFile(`${__dirname}/../hosted/index.html`, (err, data) => {
+      res.writeHead(200, { 'Content-Type': 'text/html'});
+      res.end(data);
+    });
+  }
 };
 
 const app = http.createServer(handler);
